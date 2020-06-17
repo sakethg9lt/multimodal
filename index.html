@@ -5,6 +5,7 @@
   <meta charset="UTF-8" />
   <title>TLC Transit Map</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.2/dist/leaflet.css" />
+  
   <style>
 	/*	Project-specific styles */
 	
@@ -212,8 +213,8 @@
   <!-- header part starts -->
 
   <div id="headerTop">
-    <img width="50px" height="50px" style="margin-left: 20px; margin-top: 3px; float:left" src="img/tlc.ico"><a href="https://www.tlcengine.com/" target="_blank"></a></img>
-    <h2>TLC Engine Transit Map</h2>
+    <img width="130px" height="50px" style="margin-left: 20px; margin-top: 3px; float:left" src="img/TLCengineNewLogo.png"><a href="https://www.tlcengine.com/" target="_blank"></a></img>
+    <h2>Transit Map</h2>
     <!-- <div id="toggle" class=""> -->
       <!-- <i class="icon-reorder icon-2x"></i> -->
     <!-- </div> -->
@@ -233,6 +234,22 @@
       NYC. Just click the map or enter an address.<br/>
       <em>Staten Island Railway included; ferries, buses and bikes are not.</em>
     </p>
+	<ul class="rFare">
+		<li class="fare-list-head">Reduced Fares</li>
+		<li class="fare-list">Subway, Local Bus, Select Bus: <b>$2.75</b></li>
+		<li class="fare-list">30-Day Unlimited Ride: <b>$127</b></li>
+		<li class="fare-list">7-Day Unlimited Ride: <b>$33</b></li>
+		<li class="fare-list">Express Bus: <b>$6.75</b></li>
+		<li class="fare-link"><a href="https://new.mta.info/fares-and-tolls/subway-bus-and-staten-island-railway" target="_blank">more information</a></li>
+	</ul>
+	<ul class="fare">
+		<li class="fare-list-head">Standard MetroCard Fares</li>
+		<li class="fare-list">Base Pay-Per-Ride fare: <b>$2.75</b></li>
+		<li class="fare-list">Single ride fare (only available at vending machines) <b>$3</b></li>
+		<li class="fare-list">30-Day Unlimited Ride: <b>$127</b></li>
+		<li class="fare-list">7-Day Unlimited Ride: <b>$33</b></li>
+		<li class="fare-list">Express Bus: <b>$6.75</b></li>
+	</ul>
   </div>
 
   <div id="legend">
@@ -351,10 +368,10 @@
     var _sf_startpt = new Date().getTime();
   </script>
 
-  <title>Transit Time NYC | WNYC</title>
+  <title>Transit Time NYC</title>
 
-  <meta name="author" content="WNYC Data News" />
-  <meta name="description" content="A dataviz project by the WNYC Data News Team." />
+  <meta name="author" content="TLC Engine" />
+  <meta name="description" content="Tlc Engine Transit Map" />
   <meta name="robots" content="index, follow" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
@@ -372,6 +389,7 @@
   <!-- all the JS -->
   <script type="text/javascript" src="js/css3-mediaqueries.js"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  
   <script type="text/javascript" src="assets/js/underscore-min.js"></script>
   <script type="text/javascript" src="assets/js/moment.min.js"></script>
   <script type="text/javascript" src="js/topojson.js"></script>
@@ -381,7 +399,9 @@
   <!-- MapBox -->
   <script src="https://api.tiles.mapbox.com/mapbox.js/v1.2.0/mapbox.js"></script>
   <script src="js/leaflet-pip.min.js"></script>
+  <script src="js/leaflet-0.7.2/leaflet.ajax.min.js"></script>
   <link href="https://api.tiles.mapbox.com/mapbox.js/v1.2.0/mapbox.css" rel="stylesheet" />
+  
   <!--[if lte IE 8]>
         <link href='https://api.tiles.mapbox.com/mapbox.js/v1.2.0/mapbox.ie.css' rel='stylesheet' />
         <![endif] -->
@@ -472,7 +492,7 @@
       var address = $("#zoombox").val();
       address += ", new york ny";
       var url =
-        "https://open.mapquestapi.com/nominatim/v1/search?format=json&json_callback=?&limit=1&location=New York, NY&q=" +
+        "https://open.mapquestapi.com/nominatim/v1/search.php?key=8fz2Bll4AFGKg2toZuGr4ed3HFp70ygx&format=json&json_callback=?&limit=1&location=New York, NY&q=" +
         address;
       url = encodeURI(url);
 
@@ -494,14 +514,7 @@
       });
     }
     function initialize_map() {
-      //   <!-- map = new L.mapbox.map('map', null,{ -->
-      //       <!-- center: new L.LatLng(40.72280, -73.95464), -->
-      //       <!-- zoom: 12, -->
-      //       <!-- attributionControl: false, -->
-      //       <!-- scrollWheelZoom: false -->
-      //   <!-- }); -->
-
-      map = L.map("map").setView([40.72280, -73.95464], 8); //-7.39981, -46.93603
+     map = L.map("map").setView([40.72280, -73.95464], 8); //-7.39981, -46.93603
       L.tileLayer(
         "https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiZ2l0aHViIiwiYSI6ImNqaHcxdnVhZDE1Z20za2w2bXo2MGlpMjYifQ.440aOf-0gSggvf319ukLzA",
         {
@@ -514,8 +527,11 @@
           id: "mapbox.streets",
         }
       ).addTo(map);
-
-      var whichFeature = 1;
+	  
+	  var geojsonLayer = new L.GeoJSON.AJAX("https://multinodejson.s3.amazonaws.com/Subway%2BLines-colored.geojson");       
+	  geojsonLayer.addTo(map);
+	  
+	  var whichFeature = 1;
       $.getJSON(
         "https://multinodejson.s3.amazonaws.com/manhattan.topo.json",
         function (data) {
@@ -537,6 +553,10 @@
           //   <!-- mblayer = new L.mapbox.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiZ2l0aHViIiwiYSI6ImNqaHcxdnVhZDE1Z20za2w2bXo2MGlpMjYifQ.440aOf-0gSggvf319ukLzA'); -->
           //   <!-- mblayer.addTo(map); -->
           map.addLayer(layer, true); // Add at bottom
+		  
+		
+    //iadded
+		  
           map.on("click", function (e) {
             var whichHex = leafletPip.pointInLayer(e.latlng, layer, true);
             if (whichHex.length == 0) {
